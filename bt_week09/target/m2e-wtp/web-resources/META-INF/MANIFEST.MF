@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Implementation-Title: bt_week09
+Implementation-Version: 0.0.1-SNAPSHOT
+Built-By: Windows 10
+Implementation-Vendor-Id: dtdm.g10.t7
+Build-Jdk: 1.8.0_101
+Implementation-URL: http://projects.spring.io/spring-boot/bt_week09/
+Created-By: Maven Integration for Eclipse
+Implementation-Vendor: Pivotal Software, Inc.
+
