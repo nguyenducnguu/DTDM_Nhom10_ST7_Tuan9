@@ -2,8 +2,8 @@ package bt_week09.storge;
 
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
@@ -11,7 +11,8 @@ public interface StorageService {
 
     void init();
 
-    File store(MultipartFile file);
+    String store(Path path, MultipartFile file);
+    String store(String path,InputStream inStream, String key) throws FileNotFoundException;
 
     Stream<Path> loadAll();
 

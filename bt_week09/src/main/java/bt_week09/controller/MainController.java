@@ -3,6 +3,8 @@ package bt_week09.controller;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,6 +31,7 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
+import com.google.common.io.Files;
 
 import bt_week09.model.Post;
 import bt_week09.service.PostService;
@@ -111,13 +114,19 @@ public class MainController {
 			BindingResult bindingResult, HttpServletRequest request) {
 		try {
 			if (file != null) {
-				storageService.store(file);
+				
+				Path path = Paths.get(request.getRealPath("/")+"upload-dir" + java.io.File.separator + file.getOriginalFilename());
+				String fileName = storageService.store(path,file);
+				String pathFile = request.getRealPath("/")+"upload-dir" + java.io.File.separator + file.getOriginalFilename();
+				
+				java.io.File fileUpload = new java.io.File(pathFile);
+				
 				// google drive
 				Drive service = getDriveService();
 				File fileMetadata = new File();
-				fileMetadata.setName(file.getOriginalFilename());
-				java.io.File filePath = new java.io.File("upload-dir/" + file.getOriginalFilename());
-				FileContent mediaContent = new FileContent(file.getContentType(), filePath);
+				fileMetadata.setName(fileUpload.getName());
+
+				FileContent mediaContent = new FileContent(file.getContentType(), fileUpload.getAbsoluteFile());
 				File f = service.files().create(fileMetadata, mediaContent).setFields("id").execute();
 
 				post.setFile("https://drive.google.com/open?id=" + f.getId());

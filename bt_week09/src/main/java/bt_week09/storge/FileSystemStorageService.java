@@ -8,11 +8,16 @@ import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.stream.Stream;
 
 @Service
@@ -24,20 +29,7 @@ public class FileSystemStorageService implements StorageService {
     public FileSystemStorageService(StorageProperties properties) {
         this.rootLocation = Paths.get(properties.getLocation());
     }
-
-    @Override
-    public File store(MultipartFile file) {
-        try {
-            if (file.isEmpty()) {
-                throw new StorageException("Failed to store empty file " + file.getOriginalFilename());
-            }
-            Files.copy(file.getInputStream(), this.rootLocation.resolve(file.getOriginalFilename()));
-        } catch (IOException e) {
-            throw new StorageException("Failed to store file " + file.getOriginalFilename(), e);
-        }
-        String path = String.valueOf(this.rootLocation.resolve(file.getOriginalFilename()));
-		return new File(path);
-    }
+ 
 
     @Override
     public Stream<Path> loadAll() {
@@ -86,4 +78,54 @@ public class FileSystemStorageService implements StorageService {
             throw new StorageException("Could not initialize storage", e);
         }
     }
+
+
+	@Override
+	public String store(Path path, MultipartFile file) {
+		// TODO Auto-generated method stub
+		try {
+	          if (file.isEmpty()) {
+	              throw new StorageException("Failed to store empty file " + file.getOriginalFilename());
+	          }
+	          Files.copy(file.getInputStream(),path, StandardCopyOption.REPLACE_EXISTING);
+	     } catch (IOException e) {
+	          throw new StorageException("Failed to store file " + file.getOriginalFilename(), e);
+	     }
+		return file.getOriginalFilename()+"";
+	}
+	@Override
+	public String store(String path,InputStream inStream, String key) throws FileNotFoundException{
+			OutputStream outputStream =
+		                    new FileOutputStream(new File(path));
+			try {
+				int read = 0;
+				byte[] bytes = new byte[1024];
+
+				while ((read = inStream.read(bytes)) != -1) {
+					outputStream.write(bytes, 0, read);
+				}
+				System.out.println("Done!");
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				if (inStream != null) {
+					try {
+						inStream.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				if (outputStream != null) {
+					try {
+						// outputStream.flush();
+						outputStream.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+
+				}
+			}
+		return path;
+	}
 }
